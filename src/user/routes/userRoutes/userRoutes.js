@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../.././../middleware/authMiddleware');
-const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo } = require('../../controller/userController');
+const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo, resetPassword } = require('../../controller/userController');
 
 // User Login Route
 router.route("/api/userLogin").post(userLogin);
@@ -18,4 +18,6 @@ router.route("/api/user/:id").put(auth,userProfileUpdate);
 // User Profile Route 
 router.route("/api/user/:id").get(auth,getUserInfo);
 
+// User Reset Password
+router.route("/api/resetPassword").put(auth,resetPassword);
 module.exports = router; 

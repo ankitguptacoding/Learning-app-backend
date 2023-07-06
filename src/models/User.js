@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     password: String,
     type: String,
     mobile: String,
-
+    otp: Number
 },
 { timestamps: true }
 );

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 var _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { sendVerificationEmailResetPwd } = require('../../middleware/email');
 const saltRounds = 10;
 const key = process.env.JWT_KEY;
 
@@ -200,5 +201,45 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
+    },
+
+    resetPassword: async (req,res)=>{
+        try {
+            
+            const { email } = req.body;
+            if (!_.isEmpty(email)) {
+
+                let data = await User.findOne({
+                    email: email
+    
+                })
+                if(data == undefined){
+                    delete response.data;
+                    response.message = "worng Email"
+                    return res.send(response);
+                }
+                var otp = Math.floor(1000 + Math.random() * 9000);
+                console.log("otp",otp);
+                if(otp){
+                    const userData = await User.updateOne({ email: email }, {
+                        $set: {otp: otp}
+                    });
+                    if(userData){
+                        let sendResult = await sendVerificationEmailResetPwd(email, otp);
+                        if (sendResult.messageId) { return res.status(200).json({ message: 'Sending otp To your Email' }) } else { return res.status(200).json({ message: 'Internal Problem in email services' }) }
+                    }
+                }   
+                
+            }else{
+                delete response.data;
+                response.message = "fill Email & Password"
+                return res.send(response);
+            }
+            
+        } catch (error) {
+            console.log(error)
+            return error
+        }
     }
+
 }
