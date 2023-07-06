@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const User = require('../../models/User');
 const mongoose = require('mongoose');
 var _ = require('lodash');
 
@@ -19,7 +19,7 @@ module.exports = {
             response.message = "sucessfully Product Add"
             res.send(response);
             return;
-        }
+        }   
         delete response.data;
         response.message = "Empty Fields"
         res.send(response);

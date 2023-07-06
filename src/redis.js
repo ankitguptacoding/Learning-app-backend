@@ -9,6 +9,6 @@ redis.on("connect", function () {
 redis.set('key', '12345');
 const fun = async ()=>{
     const value = await redis.get('key');
-    console.log("RedisValue",value);
+    console.log("RedisValueTest",value);
 }
 module.exports = fun()

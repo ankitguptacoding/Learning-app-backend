@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../../middleware/authMiddleware');
+const auth = require('../.././../middleware/authMiddleware');
 const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo } = require('../../controller/userController');
 
 // User Login Route

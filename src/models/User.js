@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     mobile: String,
 
-});
+},
+{ timestamps: true }
+);
 
 module.exports = mongoose.model('users',userSchema);

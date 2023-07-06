@@ -2,8 +2,9 @@ const express = require('express');
 require("dotenv").config();
 require('././config/database');
 const cors = require('cors');
-const router = require('../src/routes/userRoutes/userRoutes');
-const routerProduct = require('./routes/productRoutes/productRoutes');
+const router = require('./user/routes/userRoutes/userRoutes');
+const routerProduct = require('./user/routes/productRoutes/productRoutes');
+const routerAdmin = require('./admin/routes/bannerRoutes')
 const app = express();
 const redisFun = require('../src/redis')
 app.use(express.json());
@@ -13,6 +14,6 @@ const redisTest = async()=>{
     await redisFun()
 }
 //default url 
-app.use('/', router,routerProduct);
+app.use('/', router, routerAdmin);
 
 app.listen(450);

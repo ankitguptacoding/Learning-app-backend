@@ -1,7 +1,7 @@
 const express = require('express');
-const { productAdd, productList, productDelete, productDetailes, productUpdate, productSearch } = require('../../controller/ProductController');
+const { productAdd, productList, productDelete, productDetailes, productUpdate, productSearch } = require('../../controller/productController');
 const routerProduct = express.Router();
-const auth = require('../../middleware/authMiddleware');
+const auth = require('../.././../middleware/authMiddleware');
 
 // New Product Add Route
 routerProduct.route("/api/add-product").post(auth, productAdd);
