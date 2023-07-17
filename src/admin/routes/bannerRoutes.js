@@ -2,15 +2,24 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/authMiddleware');
 const { uploadFileToS3 }  = require('../../middleware/aws');
-const { uploadBanner, uploadLatestVideos, uploadStudyMaterailPdf } = require('../controller/bannerController');
+const { uploadBanner, uploadLatestVideos, uploadStudyMaterailPdf, getBanners, getLatestVideos, getStudyMaterialPdf } = require('../controller/bannerController');
 
 // Feature Banner  Route
-router.route("/api/uploadBanner").post(auth, uploadFileToS3.single('banner_image'), uploadBanner);
+router.route("/admin/api/uploadBanner").post(auth, uploadFileToS3.single('banner_image'), uploadBanner);
 
 //  Latest Videos Route
-router.route("/api/uploadLatestVideos").post(auth,uploadLatestVideos);
+router.route("/admin/api/uploadLatestVideos").post(auth,uploadFileToS3.single('video'),uploadLatestVideos);
 
 //  Study Material Route
-router.route("/api/uploadStudyMaterailPdf").post(auth,uploadStudyMaterailPdf);
+router.route("/admin/api/uploadStudyMaterailPdf").post(auth,uploadFileToS3.single('pdf'),uploadStudyMaterailPdf);
+
+// Feature get Banner  Route
+router.route("/admin/api/getBanner").get(auth,getBanners);
+
+//  Latest get Videos Route
+router.route("/admin/api/getLatestVideos").get(auth,getLatestVideos);
+
+//  Study get Material Route
+router.route("/admin/api/getStudyMaterail").get(auth,getStudyMaterialPdf);
 
 module.exports = router;
