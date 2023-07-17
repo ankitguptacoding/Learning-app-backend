@@ -136,7 +136,7 @@ module.exports = {
             let response = { "data": [], "status": false, "message": "" };
             if (!mongoose.Types.ObjectId.isValid(id)) {
                 delete response.data;
-                response.message = "Wrong Product Id ."
+                response.message = "Wrong user Id ."
                 res.send(response);
                 return;
             }

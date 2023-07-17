@@ -29,7 +29,7 @@ module.exports = {
 
             delete response.data;
             response.status = false;
-            response.message = "No banner yet";
+            response.message = "No banner upload ";
             return res.send(response);;
 
 
@@ -41,20 +41,28 @@ module.exports = {
     uploadLatestVideos: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
+            const { title, description } = req.body;
+            const thumb_nail = req.file.location;
+            let data = {
+                thumb_nail: thumb_nail,
+                title: title,
+                description: description
+            }
+            let video_data = new Videos(data);
+            let result = await video_data.save();
+            
+            if (!_.isEmpty(result)) {
 
-            let videos_data = await Videos.find();
-            if (!_.isEmpty(videos_data)) {
-
-                response.data = videos_data;
+                response.data = result;
                 response.status = true;
-                response.message = "videos data Info.";
+                response.message = "video data Info.";
                 
                 return res.send(response);
             }
 
             delete response.data;
             response.status = false;
-            response.message = "No Videos yet";
+            response.message = "No video upload";
             return res.send(response);;
 
 
@@ -66,19 +74,29 @@ module.exports = {
     uploadStudyMaterailPdf: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
+            const { title, subject } = req.body;
+            const doucment = req.file.location;
+            let data = {
+                doucment: doucment,
+                title: title,
+                document_sort: 0,
+                subject: subject
+            }
+            let Pdf_data = new Pdf(data);
+            let result = await Pdf_data.save();
+            
+            if (!_.isEmpty(result)) {
 
-            let pdf_data = await Pdf.find();
-            if (!_.isEmpty(pdf_data)) {
-
-                response.data = pdf_data;
+                response.data = result;
                 response.status = true;
-                response.message = "pdf data Info.";
+                response.message = "Pdf data Info.";
+                
                 return res.send(response);
             }
 
             delete response.data;
             response.status = false;
-            response.message = "No pdf yet";
+            response.message = "No pdf Upload";
             return res.send(response);;
 
 

@@ -8,10 +8,10 @@ const { uploadBanner, uploadLatestVideos, uploadStudyMaterailPdf, getBanners, ge
 router.route("/admin/api/uploadBanner").post(auth, uploadFileToS3.single('banner_image'), uploadBanner);
 
 //  Latest Videos Route
-router.route("/admin/api/uploadLatestVideos").post(auth,uploadFileToS3.single('video'),uploadLatestVideos);
+router.route("/admin/api/uploadLatestVideos").post(auth,uploadFileToS3.single('thumb_nail'),uploadLatestVideos);
 
 //  Study Material Route
-router.route("/admin/api/uploadStudyMaterailPdf").post(auth,uploadFileToS3.single('pdf'),uploadStudyMaterailPdf);
+router.route("/admin/api/uploadStudyMaterailPdf").post(auth,uploadFileToS3.single('doucment'),uploadStudyMaterailPdf);
 
 // Feature get Banner  Route
 router.route("/admin/api/getBanner").get(auth,getBanners);
