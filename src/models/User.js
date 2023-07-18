@@ -4,9 +4,11 @@ const userSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
-    type: String,
     mobile: String,
-    otp: Number
+    otp: { type: Number, default: null },
+    isEmailVerify: { type: Boolean, default: false },
+    otpTime: { type: Date, default: null }
+    
 },
 { timestamps: true }
 );

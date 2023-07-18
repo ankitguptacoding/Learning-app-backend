@@ -2,20 +2,33 @@ const express = require('express');
 require("dotenv").config();
 require('././config/database');
 const cors = require('cors');
+const logger = require('./utils/logger')(module);
+const morgan = require("morgan");
 const router = require('./user/routes/userRoutes/userRoutes');
 const routerProduct = require('./user/routes/productRoutes/productRoutes');
-const routerAdmin = require('./admin/routes/bannerRoutes');
+const routerAdmin = require('./admin/routes/Routes');
 const routerUserBanner = require('./user/routes/bannerRoutes/bannerRoutes');
-const routerAdminBanner = require('./admin/routes/bannerRoutes');
+const bodyParser = require("body-parser");
 const app = express();
 const redisFun = require('../src/redis')
+const port = 450;
+app.use(morgan('dev'))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
-console.log("server start")
+
+app.use(cors({
+    "origin": "*"
+}))
 const redisTest = async()=>{
     await redisFun()
 }
 //default url 
-app.use('/', router, routerAdmin,routerUserBanner,routerAdminBanner);
+app.use('/', router, routerAdmin,routerUserBanner);
 
-app.listen(450);
+var server = app.listen(port, () => logger.info(`Server is listening on http://localhost:450`));
+process.on('uncaughtException', (err) => {
+    console.log('UNCAUGHT EXCEPTION', err.message);
+    logger.error(err.stack);
+    process.exit(1);
+  });

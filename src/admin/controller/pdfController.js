@@ -1,35 +1,37 @@
-const Banner = require('../../models/Banner');
-const Videos = require('../../models/StudyMaterialVideo');
+
+
 const Pdf = require('../../models/StudyMaterialPdf')
-const mongoose = require('mongoose');
+
 var _ = require('lodash');
 
 module.exports = {
-    uploadBanner: async (req, res,next) => {
+   
+    uploadStudyMaterailPdf: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title } = req.body;
-            const banner_image = req.file.location;
+            const { title, subject } = req.body;
+            const doucment = req.file.location;
             let data = {
-                banner_image: banner_image,
+                doucment: doucment,
                 title: title,
-                banner_sort: 0
+                document_sort: 0,
+                subject: subject
             }
-            let banner_data = new Banner(data);
-            let result = await banner_data.save();
+            let Pdf_data = new Pdf(data);
+            let result = await Pdf_data.save();
             
             if (!_.isEmpty(result)) {
 
                 response.data = result;
                 response.status = true;
-                response.message = "banner_data Info.";
+                response.message = "Pdf data Info.";
                 
                 return res.send(response);
             }
 
             delete response.data;
             response.status = false;
-            response.message = "No banner upload ";
+            response.message = "No pdf Upload";
             return res.send(response);;
 
 
@@ -38,23 +40,23 @@ module.exports = {
             return;
         }
     },
-    getBanners: async (req, res) => {
+    
+    getStudyMaterialPdf: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
 
-            let banner_data = await Banner.find();
-            if (!_.isEmpty(banner_data)) {
+            let pdf_data = await Pdf.find();
+            if (!_.isEmpty(pdf_data)) {
 
-                response.data = banner_data;
+                response.data = pdf_data;
                 response.status = true;
-                response.message = "banner_data Info.";
-                
+                response.message = "pdf data Info.";
                 return res.send(response);
             }
 
             delete response.data;
             response.status = false;
-            response.message = "No banner yet";
+            response.message = "No pdf yet";
             return res.send(response);;
 
 
@@ -63,18 +65,20 @@ module.exports = {
             return;
         }
     },
-    updateBanner: async (req, res) => {
+
+    updateStudyMaterialPdf: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title, id, banner_sort } = req.body;
+            const { title, id, document_sort ,subject} = req.body;
             console.log("req",req.body)
-            const banner_image = req.file && req.file.location ? req.file.location : "";
+            const doucment = req.file && req.file.location ? req.file.location : "";
             let data = {}
-            if(banner_image) data.banner_image = banner_image
+            if(doucment) data.doucment = doucment
             if(title) data.title = title
-            if(banner_sort) data.banner_sort = banner_sort 
+            if(document_sort) data.document_sort = document_sort 
+            if(subject) data.subject = subject 
             console.log("data",data)
-            let result = await Banner.updateOne({
+            let result = await Pdf.updateOne({
                 _id: id
             },{$set:data});
             
@@ -82,14 +86,14 @@ module.exports = {
 
                 response.data = result;
                 response.status = true;
-                response.message = "banner updated ";
+                response.message = "Pdf updated ";
                 
                 return res.send(response);
             }
 
             delete response.data;
             response.status = false;
-            response.message = "No banner update ";
+            response.message = "No Pdf update ";
             return res.send(response);;
 
 
@@ -98,20 +102,21 @@ module.exports = {
             return;
         }
     },
-    deleteBanner: async (req, res) => {
+    
+    deleteStudyMaterialPdf: async (req, res) => {
         try {
         let id = req.params.id;
         let response = { "status": false, "message": "" };
         console.log("id", id);
-        const result = await Banner.deleteOne({ _id: id });
+        const result = await Pdf.deleteOne({ _id: id });
         if (result.deletedCount > 0) {
             response.status = true;
-            response.message = "Banner deleted."
+            response.message = "Pdf deleted."
             res.send(response);
             return;
         }
         response.status = false;
-        response.message = "Banner Already Deleted"
+        response.message = "Pdf Already Deleted"
         res.send(response);
         return; 
         } catch (error) {
@@ -119,5 +124,4 @@ module.exports = {
             return;
         }
     }
-   
 }

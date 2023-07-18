@@ -12,7 +12,6 @@ const auth = async(req,res,next)=>{
                return res.send({sucess:false,message: "Failed to authenticate user."})
             } else {
                 req.decoded = decoded;
-                console.log("req.decoded",req.decoded);
                 next();
             }
         })
