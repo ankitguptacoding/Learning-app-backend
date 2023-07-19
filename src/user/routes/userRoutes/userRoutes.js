@@ -26,7 +26,7 @@ router.route("/api/forgotPassword").post(forgotPassword);
 router.route("/api/resetPassword").put(resetPassword);
 
 // User change Password
-router.route("/api/changePassword").put(changePassword);
+router.route("/api/changePassword").put(auth, changePassword);
 
 // User verify Email
 router.route("/api/verifyOtpByEmail/otp/:otp").get(verifyOtpByEmail)
