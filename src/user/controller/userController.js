@@ -1,5 +1,7 @@
 const User = require("../../models/User");
 const mongoose = require("mongoose");
+const validater = require("../../middleware/validation/userValidation");
+const { body, validationResult } = require("express-validator");
 var _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
@@ -10,143 +12,169 @@ const key = process.env.JWT_KEY;
 
 module.exports = {
   userLogin: async (req, res) => {
-    const { email, password } = req.body;
-    console.log("req.body", req.body);
     let response = { data: [], status: false, message: "" };
-    if (!_.isEmpty(email) && !_.isEmpty(password)) {
-      let data = await User.findOne({
-        email: email,
-      }).lean();
-      if (data == undefined) {
-        delete response.data;
-        response.message = "worng Email or Password";
-        return res.send(response);
-      }
+    const { email, password } = req.body;
+    try {
+      if (!_.isEmpty(email) && !_.isEmpty(password)) {
+        let data = await User.findOne({
+          email: email,
+        }).lean();
+        if (data == undefined) {
+          delete response.data;
+          response.message = "Worng Email ";
+          return res.send(response).status(403);
+        }
 
-      const match = bcrypt.compareSync(password, data.password);
-      console.log("match", match);
-      if (!match) {
-        delete response.data;
-        response.message = "worng Email or Password";
-        return res.send(response);
+        const match = bcrypt.compareSync(password, data.password);
+
+        if (!match) {
+          delete response.data;
+          response.message = "Wrong Password ";
+          return res.send(response).status(403);
+        } else {
+          let token_data = {
+            email: data.email,
+            name: data.name,
+          };
+
+          let token = jwt.sign({ token_data }, key, { expiresIn: "24h" });
+          delete data.password;
+          response.data = data;
+          response.status = true;
+          response.message = "sucessfully login";
+          response.auth = token;
+          return res.send(response).status(200);
+        }
       } else {
-        let token_data = {
-          email: data.email,
-          name: data.name,
-        };
-
-        let token = jwt.sign({ token_data }, key, { expiresIn: "24h" });
-        delete data.password;
-        response.data = data;
-        response.status = true;
-        response.message = "sucessfully login";
-        response.auth = token;
-        return res.send(response);
+        delete response.data;
+        response.message = "fill Email & Password";
+        return res.send(response).status(404);
       }
-    } else {
+    } catch (error) {
       delete response.data;
-      response.message = "fill Email & Password";
-      return res.send(response);
+      response.message = "Internal server error";
+      return res.status(500).send(response);
     }
   },
 
   userSignUp: async (req, res) => {
-    console.log("hii");
-    let data = { result: [], status: false, message: "Registernation Failed" };
+    let response = { data: [], status: false, message: "" };
     const { name, email, mobile, password } = req.body;
-
     try {
       // Validate user input
-      if (!name || !email || !password || !mobile) {
-        return res.status(400).json({ message: "All fields are required" });
+      validater.validateUser(req, res);
+      const errors = validationResult(req);
+
+      if (!_.isEmpty(errors.array())) {
+        delete response.data;
+        response.message = "All fields are required with correct information";
+        response.error = errors.array();
+        return res.status(400).send(response);
+        // return res.status(400).json({ errors: errors.array() });
       }
+
+      // Validate user input
+      if (!name || !email || !password || !mobile) {
+        delete response.data;
+        response.message = "All fields are required";
+        return res.status(400).send(response);
+      }
+
       // Check if user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(409).send({ message: "User already exists" });
+        delete response.data;
+        response.message = "User already exists";
+        return res.status(409).send(response);
       }
       // Hash password
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       // Create new user
-      const newUser = new User({
+      const newUser = {
         name,
         email,
         password: hashedPassword,
         mobile,
         isEmailVerify: false,
-      });
-      await newUser.save();
+      };
+      await User.create(newUser);
 
       // Create token
       const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
 
+      //Create response
       if (token) {
-        //Create response
         delete newUser.password;
-        data.status = true;
-        data.message = "successfully";
-        data.result = newUser;
-        data.auth = token;
-        res.status(201).json(data);
-        return;
+        response.status = true;
+        response.message = "successfully";
+        response.data = newUser;
+        response.auth = token;
+        return res.status(200).send(response);
       }
-      return res.status(400).json(data);
+      delete response.data;
+      response.message = "token generate error";
+      return res.status(400).send(response);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error" });
+      console.log(error);
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
     }
   },
 
   userList: async (req, res) => {
+    let response = { data: [], status: false, message: "" };
     try {
-      let response = { data: [], status: false, message: "" };
-
+      //Find All User
       let userData = await User.find().select("-password").lean();
       if (!_.isEmpty(userData)) {
         response.data = userData;
         response.status = true;
         response.message = "sucessfully All User Info.";
-        res.send(response);
-        return;
+        return res.send(response).status(200);
       }
 
       delete response.data;
-      response.status = false;
       response.message = "No User yet";
-      res.send(response);
-      return;
+      return res.send(response).status(404);
     } catch (error) {
       console.log(error);
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
     }
   },
 
   userProfileUpdate: async (req, res) => {
+    let response = { data: [], status: false, message: "" };
+    let id = req.params.id;
+    const { email, name, mobile } = req.body;
+
     try {
-      let id = req.params.id;
-      console.log("req", req.body);
-      const { email } = req.body;
-      let response = { data: [], status: false, message: "" };
       if (!mongoose.Types.ObjectId.isValid(id)) {
         delete response.data;
         response.message = "Wrong user Id .";
-        res.send(response);
-        return;
+        return res.send(response).status(404);
       } else {
-        console.log("email", email);
         const emailCheck = await User.find({ email: email });
-        console.log("emailCheck", emailCheck[0]);
-        let emailCheck_id =
+
+        let email_user_id =
           emailCheck && emailCheck[0] != undefined ? emailCheck[0].id : "";
-        if (emailCheck_id != id && !_.isEmpty(emailCheck)) {
+        if (email_user_id != id && !_.isEmpty(emailCheck)) {
+          delete response.data;
           response.status = false;
           response.message = "Email Already Exists.";
-          return res.send(response);
+          return res.send(response).status(403);
         } else {
+          let userUpDt = {};
+          if (email) userUpDt.email = email;
+          if (name) userUpDt.name = name;
+          if (mobile) userUpDt.mobile = mobile;
           const userData = await User.updateOne(
             { _id: id },
             {
-              $set: req.body,
+              $set: userUpDt,
             }
           );
           response.data = userData;
@@ -154,60 +182,66 @@ module.exports = {
             response.data = userData;
             response.status = true;
             response.message = "User  Updated.";
-            return res.send(response);
+            return res.send(response).status(200);
           } else {
-            response.status = false;
+            delete response.data;
             response.message = "User Already Up to date.";
-            return res.send(response);
+            return res.send(response).status(403);
           }
         }
       }
     } catch (error) {
-      console.log(error);
+      delete response.data;
+      response.message = "Internal server error";
+      return res.send(response).status(403);
     }
   },
 
   getUserInfo: async (req, res) => {
     const id = req.params.id;
-    let response = { data: [], status: false, message: "Empty Or Wrong Id" };
+    let response = { data: [], status: false, message: "" };
     try {
-      if (!_.isEmpty(id)) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          delete response.data;
-          return res.send(response);
-        }
-        let userInfo = await User.findOne({ _id: id }).select("-password");
-        if (userInfo != undefined) {
-          response.data = userInfo;
-          response.status = true;
-          response.message = "User Info";
-          return res.send(response);
-        }
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        delete response.data;
+        response.message = "wrong ID";
+        return res.send(response).status(404);
+      }
+      let userInfo = await User.findOne({ _id: id }).select("-password");
+      if (userInfo != undefined) {
+        response.data = userInfo;
+        response.status = true;
+        response.message = "User Info";
+        return res.send(response).status(200);
       }
       delete response.data;
-      return res.send(response);
+      response.message = "User Not Found";
+      return res.send(response).status(200);
     } catch (error) {
       console.log(error);
+      delete response.data;
+      response.message = "Internal server error";
+      return res.send(response).status(500);
     }
   },
 
   forgotPassword: async (req, res) => {
+    let response = { data: [], status: false, message: "" };
     try {
-      let response = { data: [], status: false, message: "" };
       const { email } = req.body;
       if (!_.isEmpty(email)) {
         let data = await User.findOne({
           email: email,
         }).select("-password");
-        if (data == undefined) {
+        console.log("data", data);
+        if (data == undefined || data == null || data == "") {
           delete response.data;
           response.message = "worng Email";
-          return res.send(response);
+          return res.send(response).status(404);
         }
         var otp = Math.floor(1000 + Math.random() * 9000);
         var currTime = moment().format("YYYY-MM-DD HH:mm:ss");
         console.log("otp", otp);
-        if (otp) {
+        if (otp.toString().length >= 4) {
           const userData = await User.updateOne(
             { email: email },
             {
@@ -217,52 +251,61 @@ module.exports = {
               },
             }
           );
-          if (userData) {
+          if (userData.modifiedCount) {
             let sendResult = await sendVerificationEmailResetPwd(email, otp);
             if (sendResult.messageId) {
-              return res
-                .status(200)
-                .json({ message: "Sending otp To your Email" });
+              delete response.data;
+              response.status = true;
+              response.message = "otp Send To your Email";
+              return res.status(200).send(response);
             } else {
-              return res
-                .status(200)
-                .json({ message: "Internal Problem in email services" });
+              delete response.data;
+              response.message = "Email Service Unavailable";
+              return res.status(503).send(response);
             }
           }
         }
       } else {
         delete response.data;
         response.message = "fill Email & Password";
-        return res.send(response);
+        return res.send(response).status(400);
       }
     } catch (error) {
-      console.log(error);
-      return error;
+      delete response.data;
+      response.message = "Internal server error";
+      return res.send(response).status(500);
     }
   },
 
-  resetPassword: async (req, res) => {
+  changePassword: async (req, res) => {
+    let response = { data: [], status: false, message: "" };
     try {
-      let response = { data: [], status: false, message: "" };
       const { email, oldPassword, newPassword } = req.body;
+      console.log(!_.isEmpty(email), !_.isEmpty(oldPassword), !_.isEmpty(newPassword));
       if (
         !_.isEmpty(email) &&
         !_.isEmpty(oldPassword) &&
         !_.isEmpty(newPassword)
       ) {
+        
         let data = await User.findOne({
           email: email,
-        }).select("-password");
+        }).lean();
         if (!data) {
           delete response.data;
           response.message = "worng Email";
-          return res.send(response);
+          return res.send(response).status(404);
         }
         const match = bcrypt.compareSync(oldPassword, data.password);
         if (!match) {
           delete response.data;
           response.message = "Incorrect Password";
-          return res.send(response);
+          return res.send(response).status(200);
+        }
+        if (newPassword.length < 8) {
+          delete response.data;
+          response.message = "Password must have 8 characters";
+          return res.send(response).status(404);
         }
         const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
         const userData = await User.updateOne(
@@ -271,26 +314,74 @@ module.exports = {
             $set: { password: hashedPassword },
           }
         );
+        delete data.password;
         response.data = data;
         response.status = true;
         response.message = "password change successfuly!...";
-        return res.send(response);
+        return res.send(response).status(200);
       } else {
+        console.log("enter");
         delete response.data;
         response.message = "fill Email & Password";
-        return res.send(response);
+        return res.send(response).status(400);
       }
     } catch (error) {
       console.log(error);
-      return error;
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
+    }
+  },
+
+  resetPassword: async (req, res) => {
+    let response = { data: [], status: false, message: "" };
+    try {
+      const { email, newPassword } = req.body;
+      if (!_.isEmpty(email) && !_.isEmpty(newPassword)) {
+        let data = await User.findOne({
+          email: email,
+        }).lean();
+        if (!data) {
+          delete response.data;
+          response.message = "worng Email";
+          return res.send(response).status(404);
+        }
+        if (newPassword.length < 8) {
+          delete response.data;
+          response.message = "Password must have 8 characters";
+          return res.send(response).status(404);
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const userData = await User.updateOne(
+          { email: email },
+          {
+            $set: { password: hashedPassword },
+          }
+        );
+        delete data.password;
+        response.data = data;
+        response.status = true;
+        response.message = "password reset successfuly!...";
+        return res.send(response).status(200);
+      } else {
+        delete response.data;
+        response.message = "fill Email & Password";
+        return res.send(response).status(400);
+      }
+    } catch (error) {
+      console.log(error);
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
     }
   },
 
   verifyOtpByEmail: async (req, res) => {
     let response = { data: [], status: false, message: "" };
-    const email = req.decoded.token_data.email;
+    const email = req.body.email;
     const otp = req.params.otp;
-    console.log("otp", otp,"email",email);
+    console.log("otp", otp, "email", email);
     try {
       let userData = await User.findOne({
         email: email,
@@ -298,35 +389,40 @@ module.exports = {
       if (!userData) {
         delete response.data;
         response.message = "worng Email";
-        return res.send(response);
+        return res.status(404).send(response);
       }
       const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
       var currTime = moment().format(dateTimeFormat);
       var pastDate = moment(userData.otpTime, dateTimeFormat)
-        .add(10, "minutes")
+        .add(1, "minutes")
         .format(dateTimeFormat);
       if (currTime <= pastDate) {
+        console.log(otp, userData.otp);
         if (otp == userData.otp) {
-          const userVerifyData = await User.updateOne(
-            { email: email },
-            {
-              $set: { isEmailVerify: true },
-            }
-          );
-          response["message"] = "OTP verified successfully.";
+          // const userVerifyData = await User.updateOne(
+          //   { email: email },
+          //   {
+          //     $set: { otp: null, otpTime: null },
+          //   }
+          // );
+          delete response.data;
+          response["message"] = "OTP Verified Successfully...";
           response["status"] = true;
-          response["data"] = userVerifyData;
-          return res.json(response);
+          return res.status(200).send(response);
         } else {
-            delete response.data;
+          delete response.data;
           response["message"] = "Wrong OTP.";
-          return res.json(response);
+          return res.status(401).send(response);
         }
       } else {
         delete response.data;
         response["message"] = "OTP has been expired.";
-        return res.json(response);
+        return res.status(410).send(response);
       }
-    } catch (error) {}
+    } catch (error) {
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
+    }
   },
 };
