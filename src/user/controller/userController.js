@@ -380,8 +380,7 @@ module.exports = {
   verifyOtpByEmail: async (req, res) => {
     let response = { data: [], status: false, message: "" };
     const email = req.body.email;
-    const otp = req.params.otp;
-    console.log("otp", otp, "email", email);
+    const otp = req.body.otp;
     try {
       let userData = await User.findOne({
         email: email,
@@ -394,7 +393,7 @@ module.exports = {
       const dateTimeFormat = "YYYY-MM-DD HH:mm:ss";
       var currTime = moment().format(dateTimeFormat);
       var pastDate = moment(userData.otpTime, dateTimeFormat)
-        .add(1, "minutes")
+        .add(10, "minutes")
         .format(dateTimeFormat);
       if (currTime <= pastDate) {
         console.log(otp, userData.otp);

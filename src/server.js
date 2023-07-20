@@ -2,7 +2,7 @@ const express = require('express');
 require("dotenv").config();
 require('././config/database');
 const cors = require('cors');
-const logger = require('./utils/logger')(module);
+// const logger = require('./utils/logger')(module);
 const morgan = require("morgan");
 const router = require('./user/routes/userRoutes/userRoutes');
 const routerProduct = require('./user/routes/productRoutes/productRoutes');
@@ -26,7 +26,7 @@ const redisTest = async()=>{
 //default url 
 app.use('/', router, routerAdmin,routerUserBanner);
 
-var server = app.listen(port, () => logger.info(`Server is listening on http://localhost:450`));
+var server = app.listen(port, () => console.log(`Server is listening on http://localhost:450`));
 process.on('uncaughtException', (err) => {
     console.log('UNCAUGHT EXCEPTION', err.message);
     logger.error(err.stack);

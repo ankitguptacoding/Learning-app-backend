@@ -29,7 +29,7 @@ router.route("/api/resetPassword").put(resetPassword);
 router.route("/api/changePassword").put(auth, changePassword);
 
 // User verify Email
-router.route("/api/verifyOtpByEmail/otp/:otp").get(verifyOtpByEmail)
+router.route("/api/verifyOtpByEmail").post(verifyOtpByEmail)
 
 
 module.exports = router; 
