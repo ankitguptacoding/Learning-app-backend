@@ -13,11 +13,12 @@ module.exports = {
             let data = {
                 banner_image: banner_image,
                 title: title,
-                banner_sort: 0
+                banner_sort: 0,
+                
             }
             let banner_data = new Banner(data);
             let result = await banner_data.save();
-            
+                
             if (!_.isEmpty(result)) {
 
                 response.data = result;

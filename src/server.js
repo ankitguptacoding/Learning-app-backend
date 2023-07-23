@@ -26,7 +26,7 @@ const redisTest = async()=>{
 //default url 
 app.use('/', router, routerAdmin,routerUserBanner);
 
-var server = app.listen(port, () => console.log(`Server is listening on http://localhost:450`));
+var server = app.listen(port, () => console.log(`Server is listening on :450`));
 process.on('uncaughtException', (err) => {
     console.log('UNCAUGHT EXCEPTION', err.message);
     logger.error(err.stack);
