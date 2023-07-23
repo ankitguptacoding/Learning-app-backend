@@ -11,7 +11,7 @@ const routerUserBanner = require('./user/routes/bannerRoutes/bannerRoutes');
 const bodyParser = require("body-parser");
 const app = express();
 const redisFun = require('../src/redis')
-const port = 450;
+const port = 8000;
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -26,7 +26,7 @@ const redisTest = async()=>{
 //default url 
 app.use('/', router, routerAdmin,routerUserBanner);
 
-var server = app.listen(port, () => console.log(`Server is listening on :450`));
+var server = app.listen(port, () => console.log(`Server is listening on :${port}`));
 process.on('uncaughtException', (err) => {
     console.log('UNCAUGHT EXCEPTION', err.message);
     logger.error(err.stack);
