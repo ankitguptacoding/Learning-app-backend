@@ -38,11 +38,13 @@ module.exports = {
           };
 
           let token = jwt.sign({ token_data }, key, { expiresIn: "24h" });
+          const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
           delete data.password;
           response.data = data;
           response.status = true;
           response.message = "sucessfully login";
           response.auth = token;
+          response.token_expire_time = token_expire_time
           return res.send(response).status(200);
         }
       } else {
@@ -102,7 +104,7 @@ module.exports = {
 
       // Create token
       const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
-
+      const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
       //Create response
       if (token) {
         delete newUser.password;
@@ -110,6 +112,7 @@ module.exports = {
         response.message = "successfully";
         response.data = newUser;
         response.auth = token;
+        response.token_expire_time = token_expire_time
         return res.status(200).send(response);
       }
       delete response.data;

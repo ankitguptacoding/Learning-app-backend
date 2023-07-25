@@ -5,6 +5,7 @@ const { uploadFileToS3 }  = require('../../middleware/aws');
 const { uploadBanner,  getBanners, updateBanner, deleteBanner } = require('../controller/bannerController');
 const { uploadLatestVideos, getLatestVideos, updateLatestVideos, deleteLatestVideos } = require('../controller/videoController');
 const { uploadStudyMaterailPdf, getStudyMaterialPdf, updateStudyMaterialPdf, deleteStudyMaterialPdf } = require('../controller/pdfController');
+const { adminLogin, adminSignUp } = require('../controller/AdminUserController');
 
 // Feature Banner  Route
 router.route("/admin/api/uploadBanner").post(auth, uploadFileToS3.single('banner_image'), uploadBanner);
@@ -41,5 +42,11 @@ router.route("/admin/api/updatePdf").put(auth, uploadFileToS3.single('doucment')
 
 // Pdf Delete Route
 router.route("/admin/api/deletePdf/id/:id").delete(auth,deleteStudyMaterialPdf);
+
+// Admin login Route
+router.route("/admin/api/adminLogin").post(adminLogin);
+
+// Admin SignUp Route
+router.post("/admin/api/signup",adminSignUp);
 
 module.exports = router;

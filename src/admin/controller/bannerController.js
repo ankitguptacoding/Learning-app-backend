@@ -18,7 +18,7 @@ module.exports = {
             }
             let banner_data = new Banner(data);
             let result = await banner_data.save();
-                
+
             if (!_.isEmpty(result)) {
 
                 response.data = result;
@@ -67,16 +67,17 @@ module.exports = {
     updateBanner: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title, id, banner_sort } = req.body;
+            const { title, _id, banner_sort, status} = req.body;
             console.log("req",req.body)
             const banner_image = req.file && req.file.location ? req.file.location : "";
             let data = {}
             if(banner_image) data.banner_image = banner_image
             if(title) data.title = title
             if(banner_sort) data.banner_sort = banner_sort 
+            if(status) data.status = status
             console.log("data",data)
             let result = await Banner.updateOne({
-                _id: id
+                _id
             },{$set:data});
             
             if (!_.isEmpty(result)) {

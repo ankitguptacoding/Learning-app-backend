@@ -11,7 +11,7 @@ const routerUserBanner = require('./user/routes/bannerRoutes/bannerRoutes');
 const bodyParser = require("body-parser");
 const app = express();
 const redisFun = require('../src/redis')
-const port = 8000;
+const port = 450;
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
