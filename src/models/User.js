@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     mobile: String,
     otp: { type: Number, default: null },
     isEmailVerify: { type: Boolean, default: false },
-    otpTime: { type: Date, default: null }
+    otpTime: { type: Date, default: null },
+    token: String
     
 },
 { timestamps: true }

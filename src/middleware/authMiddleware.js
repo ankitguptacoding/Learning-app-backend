@@ -8,10 +8,10 @@ const auth = async(req,res,next)=>{
         jwt.verify(token ,key,(err, decoded)=>{
             if(err){
                 console.log("er",err);
-                console.log("token",token);
                return res.send({sucess:false,message: "Failed to authenticate user."})
             } else {
                 req.decoded = decoded;
+                
                 next();
             }
         })

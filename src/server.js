@@ -27,8 +27,3 @@ const redisTest = async()=>{
 app.use('/', router, routerAdmin,routerUserBanner);
 
 var server = app.listen(port, () => console.log(`Server is listening on :${port}`));
-process.on('uncaughtException', (err) => {
-    console.log('UNCAUGHT EXCEPTION', err.message);
-    logger.error(err.stack);
-    process.exit(1);
-  });

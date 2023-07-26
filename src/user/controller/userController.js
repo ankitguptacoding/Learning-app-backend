@@ -39,6 +39,14 @@ module.exports = {
 
           let token = jwt.sign({ token_data }, key, { expiresIn: "24h" });
           const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
+          await User.updateOne(
+            { email: email },
+            {
+              $set: {
+                token: token
+              },
+            }
+          );
           delete data.password;
           response.data = data;
           response.status = true;
@@ -92,6 +100,10 @@ module.exports = {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+        // Create token
+        const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
+        const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
+
       // Create new user
       const newUser = {
         name,
@@ -99,12 +111,10 @@ module.exports = {
         password: hashedPassword,
         mobile,
         isEmailVerify: false,
+        token : token
       };
       await User.create(newUser);
-
-      // Create token
-      const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
-      const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
+    
       //Create response
       if (token) {
         delete newUser.password;
@@ -427,4 +437,54 @@ module.exports = {
       return res.status(500).send(response);
     }
   },
+
+  refreshToken: async (req, res) =>{
+    let response = { data: [], status: false, message: "" };
+    const token = req.body.token;
+
+    try {
+      
+      if (!token) {
+        delete response.data;
+        response.message = 'token missing'
+        return res.status(401).send(response);
+      }
+      
+      jwt.verify(token, key, async(err, decoded) => {
+        if (err) {
+          delete response.data;
+          response.message = 'Invalid refresh token'
+          return res.status(403).send({ error: 'Invalid refresh token' });
+        }
+    
+        let data = await User.findOne({
+          token: token,
+        }).select("-password");
+
+        let token_data = {
+          email: data.email,
+          name: data.name,
+        };
+
+        const newAccessToken = jwt.sign(token_data, key, { expiresIn: '24h' });
+        await User.updateOne(
+          { email: data.email },
+          {
+            $set: {
+              token: newAccessToken
+            },
+          }
+        );
+        response.data = newAccessToken
+        response.message = "refresh token"
+        response.status = true
+        res.send(response).status(200);
+      });
+    } catch (error) {
+      console.log(error)
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
+    }
+  }
 };
