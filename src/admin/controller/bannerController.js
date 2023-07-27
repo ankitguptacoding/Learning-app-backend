@@ -1,7 +1,4 @@
 const Banner = require('../../models/Banner');
-const Videos = require('../../models/StudyMaterialVideo');
-const Pdf = require('../../models/StudyMaterialPdf')
-const mongoose = require('mongoose');
 var _ = require('lodash');
 
 module.exports = {
