@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const studyMaterialSchema = new mongoose.Schema({
-    doucment:{ type: String, required: true },
+    doucment_link:{ type: String, required: true },
     document_sort: Number,
     title: { type: String, required: true },
-    subject: { type: String, required: true }
+    subject: { type: String, required: true },
+    status: { type: String, required: false, default: "Inactive"}
 
 },
 { timestamps: true });

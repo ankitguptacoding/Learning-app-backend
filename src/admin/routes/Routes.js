@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../../middleware/authMiddleware');
 const { uploadFileToS3 }  = require('../../middleware/aws');
-const { uploadBanner,  getBanners, updateBanner, deleteBanner } = require('../controller/bannerController');
-const { uploadLatestVideos, getLatestVideos, updateLatestVideos, deleteLatestVideos } = require('../controller/videoController');
-const { uploadStudyMaterailPdf, getStudyMaterialPdf, updateStudyMaterialPdf, deleteStudyMaterialPdf } = require('../controller/pdfController');
+const { uploadBanner,  getBanners, updateBanner, deleteBanner } = require('../controller/BannerController');
+const { uploadLatestVideos, getLatestVideos, updateLatestVideos, deleteLatestVideos } = require('../controller/VideoController');
+const { uploadStudyMaterailPdf, getStudyMaterialPdf, updateStudyMaterialPdf, deleteStudyMaterialPdf } = require('../controller/PdfController');
 const { adminLogin, adminSignUp } = require('../controller/AdminUserController');
 
 // Feature Banner  Route

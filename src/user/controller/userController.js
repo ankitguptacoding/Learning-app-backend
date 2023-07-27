@@ -48,6 +48,7 @@ module.exports = {
             }
           );
           delete data.password;
+          delete data.token;
           response.data = data;
           response.status = true;
           response.message = "sucessfully login";
@@ -118,6 +119,7 @@ module.exports = {
       //Create response
       if (token) {
         delete newUser.password;
+        delete newUser.token;
         response.status = true;
         response.message = "successfully";
         response.data = newUser;
@@ -482,6 +484,54 @@ module.exports = {
       });
     } catch (error) {
       console.log(error)
+      delete response.data;
+      response.message = "Internal server error";
+      return res.status(500).send(response);
+    }
+  },
+
+  socialLogin: async (req, res) =>{
+    let response = { data: [], status: false, message: "" };
+    const { social_id, name, email } = req.body;
+    try {
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        delete response.data;
+        response.message = "User already exists";
+        return res.status(409).send(response);
+      }
+
+        // Create token
+        const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
+        const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
+
+      // Create new user
+      const newUser = {
+        name,
+        email,
+        isEmailVerify: true,
+        token : token,
+        social_id: social_id
+      };
+      await User.create(newUser);
+    
+      //Create response
+      if (token) {
+        delete newUser.token;
+        response.status = true;
+        response.message = "successfully";
+        response.data = newUser;
+        response.auth = token;
+        response.token_expire_time = token_expire_time
+        return res.status(200).send(response);
+      }
+      delete response.data;
+      response.message = "token generate error";
+      return res.status(400).send(response);
+    } catch (error) {
+      console.log(error);
       delete response.data;
       response.message = "Internal server error";
       return res.status(500).send(response);

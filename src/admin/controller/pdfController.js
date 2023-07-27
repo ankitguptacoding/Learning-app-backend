@@ -10,13 +10,13 @@ module.exports = {
         try {
             let response = { "data": [], "status": false, "message": "" };
             const { title, subject } = req.body;
-            const doucment = req.file.location;
+            const doucmentLink = req.file.location;
             let data = {
-                doucment: doucment,
+                doucment_link: doucmentLink,
                 title: title,
                 document_sort: 0,
                 subject: subject
-            }
+            }   
             let Pdf_data = new Pdf(data);
             let result = await Pdf_data.save();
             
@@ -69,7 +69,7 @@ module.exports = {
     updateStudyMaterialPdf: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title, id, document_sort ,subject} = req.body;
+            const { title, id, document_sort ,subject, status} = req.body;
             console.log("req",req.body)
             const doucment = req.file && req.file.location ? req.file.location : "";
             let data = {}
@@ -77,6 +77,7 @@ module.exports = {
             if(title) data.title = title
             if(document_sort) data.document_sort = document_sort 
             if(subject) data.subject = subject 
+            if(status) data.status = status
             console.log("data",data)
             let result = await Pdf.updateOne({
                 _id: id

@@ -13,7 +13,8 @@ module.exports = {
                 thumb_nail: thumb_nail,
                 title: title,
                 description: description,
-                videoLink: videoLink
+                video_link: videoLink,
+                video_sort: 0
             }
             let video_data = new Videos(data);
             let result = await video_data.save();
@@ -68,18 +69,19 @@ module.exports = {
     updateLatestVideos: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title, id, video_sort, videoLink, description } = req.body;
+            const { title, _id, video_sort, video_link, status, description } = req.body;
             console.log("req",req.body)
             const thumb_nail = req.file && req.file.location ? req.file.location : "";
             let data = {}
             if(thumb_nail) data.thumb_nail = thumb_nail
             if(title) data.title = title
             if(video_sort) data.video_sort = video_sort 
-            if(videoLink) data.videoLink = videoLink
+            if(video_link) data.video_link = video_link
             if(description) data.description = description  
+            if(status) data.status = status
             console.log("data",data)
             let result = await Videos.updateOne({
-                _id: id
+                _id
             },{$set: data});
             
             if (!_.isEmpty(result)) {

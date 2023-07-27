@@ -5,7 +5,6 @@ const cors = require('cors');
 // const logger = require('./utils/logger')(module);
 const morgan = require("morgan");
 const router = require('./user/routes/userRoutes/userRoutes');
-const routerProduct = require('./user/routes/productRoutes/productRoutes');
 const routerAdmin = require('./admin/routes/Routes');
 const routerUserBanner = require('./user/routes/bannerRoutes/bannerRoutes');
 const bodyParser = require("body-parser");

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../.././../middleware/authMiddleware');
 const validater=require('../../../middleware/validation/userValidation');
-const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo, resetPassword, forgotPassword, verifyOtpByEmail, changePassword, refreshToken } = require('../../controller/userController');
+const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo, resetPassword, forgotPassword, verifyOtpByEmail, changePassword, refreshToken, socialLogin } = require('../../controller/userController');
 
 // User Login Route
 router.route("/api/userLogin").post(userLogin);
@@ -33,6 +33,9 @@ router.route("/api/verifyOtpByEmail").post(verifyOtpByEmail)
 
 // Refresh token
 router.route("/api/refreshToken").post(refreshToken) 
+
+// Social Login
+router.route("/api/socialLogin").post(socialLogin)
 
 
 module.exports = router; 
