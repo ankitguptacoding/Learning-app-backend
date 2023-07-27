@@ -503,7 +503,7 @@ module.exports = {
      const newUser = {
        name,
        email,
-       isEmailVerify: true,
+       isEmailVerify: false,
        token : token,
        social_id: social_id
      };
