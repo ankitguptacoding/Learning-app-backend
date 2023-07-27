@@ -2,7 +2,7 @@ const Banner = require('../../models/Banner');
 var _ = require('lodash');
 
 module.exports = {
-    uploadBanner: async (req, res,next) => {
+    uploadBanner: async (req, res ) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
             const { title } = req.body;
