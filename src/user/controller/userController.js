@@ -495,26 +495,39 @@ module.exports = {
     const { social_id, name, email } = req.body;
     try {
 
+       // Create token
+       const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
+       const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
+
+     // Create new user
+     const newUser = {
+       name,
+       email,
+       isEmailVerify: true,
+       token : token,
+       social_id: social_id
+     };
       // Check if user already exists
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({ email, social_id }).select("-password").lean();
       if (existingUser) {
-        delete response.data;
-        response.message = "User already exists";
-        return res.status(409).send(response);
+        await User.updateOne(
+          { email: email,social_id: social_id },
+          {
+            $set: {
+              token: token
+            },
+          }
+        );
+        delete existingUser.token;
+        response.status = true;
+        response.message = "successfully login";
+        response.data = existingUser;
+        response.auth = token;
+        response.token_expire_time = token_expire_time
+        return res.status(200).send(response);
       }
 
-        // Create token
-        const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
-        const token_expire_time = moment().add(1, 'days').format("YYYY-MM-DD LTS");
-
-      // Create new user
-      const newUser = {
-        name,
-        email,
-        isEmailVerify: true,
-        token : token,
-        social_id: social_id
-      };
+       
       await User.create(newUser);
     
       //Create response
