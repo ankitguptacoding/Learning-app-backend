@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     otp: { type: Number, default: null },
     isEmailVerify: { type: Boolean, default: false },
     otpTime: { type: Date, default: null },
-    token: String
+    token: String,
+    image: String
     
 },
 { timestamps: true }

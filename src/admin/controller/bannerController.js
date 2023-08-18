@@ -5,11 +5,12 @@ module.exports = {
     uploadBanner: async (req, res ) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title } = req.body;
+            const { title, link } = req.body;
             const banner_image = req.file.location;
             let data = {
                 banner_image: banner_image,
                 title: title,
+                banner_link: link,
                 banner_sort: 0,
                 
             }
@@ -64,7 +65,7 @@ module.exports = {
     updateBanner: async (req, res) => {
         try {
             let response = { "data": [], "status": false, "message": "" };
-            const { title, _id, banner_sort, status} = req.body;
+            const { title, _id, banner_sort, banner_link, status} = req.body;
             console.log("req",req.body)
             const banner_image = req.file && req.file.location ? req.file.location : "";
             let data = {}
@@ -72,6 +73,7 @@ module.exports = {
             if(title) data.title = title
             if(banner_sort) data.banner_sort = banner_sort 
             if(status) data.status = status
+            if(banner_link) data.banner_link = banner_link
             console.log("data",data)
             let result = await Banner.updateOne({
                 _id

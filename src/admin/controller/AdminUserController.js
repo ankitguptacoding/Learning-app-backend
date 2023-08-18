@@ -36,7 +36,7 @@ module.exports = {
             name: data.name,
           };
 
-          let token = jwt.sign({ token_data }, key, { expiresIn: "24h" });
+          let token = jwt.sign({ token_data }, key);
           delete data.password;
           response.data = data;
           response.status = true;
@@ -88,7 +88,7 @@ module.exports = {
       await Admin.create(newUser);
 
       // Create token
-      const token = jwt.sign({ name, email }, key, { expiresIn: "24h" });
+      const token = jwt.sign({ name, email }, key);
 
       //Create response
       if (token) {

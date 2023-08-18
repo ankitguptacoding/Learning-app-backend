@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../.././../middleware/authMiddleware');
 const validater=require('../../../middleware/validation/userValidation');
 const { userLogin, userSignUp, userList, userProfileUpdate, getUserInfo, resetPassword, forgotPassword, verifyOtpByEmail, changePassword, refreshToken, socialLogin } = require('../../controller/userController');
+const { uploadFileToS3 } = require('../../../middleware/aws');
 
 // User Login Route
 router.route("/api/userLogin").post(userLogin);
@@ -14,7 +15,7 @@ router.post("/api/signup",validater.validateUser(),userSignUp);
 router.route("/api/users").get(auth,userList);
 
 // User Update Profile Route
-router.route("/api/user/:id").put(auth,userProfileUpdate);
+router.route("/api/user/:id").put(auth, uploadFileToS3.single('image'), userProfileUpdate);
 
 // User Profile Route 
 router.route("/api/user/:id").get(auth,getUserInfo);

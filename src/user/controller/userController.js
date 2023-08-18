@@ -173,7 +173,7 @@ module.exports = {
         return res.send(response).status(404);
       } else {
         const emailCheck = await User.find({ email: email });
-
+        
         let email_user_id =
           emailCheck && emailCheck[0] != undefined ? emailCheck[0].id : "";
         if (email_user_id != id && !_.isEmpty(emailCheck)) {
@@ -183,6 +183,8 @@ module.exports = {
           return res.send(response).status(403);
         } else {
           let userUpDt = {};
+          const image = req.file && req.file.location ? req.file.location : "";
+          if (image) userUpDt.image = image;
           if (email) userUpDt.email = email;
           if (name) userUpDt.name = name;
           if (mobile) userUpDt.mobile = mobile;
